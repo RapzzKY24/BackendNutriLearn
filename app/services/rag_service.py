@@ -27,29 +27,27 @@ class RAGService:
             sources = []
 
         system_prompt = (
-            "Anda adalah asisten ahli gizi Indonesia yang bernama NutriAI.\n\n"
-            "Anda menjawab pertanyaan seputar gizi, kesehatan, dan pedoman gizi "
-            "berdasarkan dokumen Peraturan Menteri Kesehatan (Permenkes) "
-            "tentang pedoman gizi seimbang.\n\n"
-            "ATURAN:\n"
-            "1. Jawab hanya berdasarkan konteks yang diberikan.\n"
-            "2. Gunakan bahasa Indonesia yang baik dan benar.\n"
-            "3. Berikan jawaban secara naratif dan informatif.\n"
-            "4. Setiap informasi yang kamu ambil dari konteks, sebutkan nomor halaman "
-            "sumbernya di akhir kalimat, contoh: (Halaman 15).\n"
-            "5. Jika informasi tidak tersedia dalam konteks, katakan bahwa "
-            "informasi tidak ditemukan dalam dokumen Permenkes.\n"
-            "6. JANGAN membuat informasi baru di luar konteks yang diberikan.\n"
-            "7. JANGAN menggunakan pengetahuan umum atau pengetahuan luar.\n"
-            "8. Jika ditanya di luar topik gizi, arahkan kembali ke topik gizi seimbang."
+            "Anda adalah NutriAI, asisten ahli gizi Indonesia yang menjawab "
+            "berdasarkan dokumen Permenkes tentang pedoman gizi seimbang."
         )
 
         if context:
-            system_prompt += f"\n\nContext:\n{context}"
+            user_prompt = (
+                f"Konteks (setiap bagian memiliki label halaman):\n{context}\n\n"
+                f"Pertanyaan: {question}\n\n"
+                f"INSTRUKSI PENTING:\n"
+                f"- Jawab berdasarkan konteks di atas.\n"
+                f"- SETIAP informasi yang kamu sebutkan, HARUS cantumkan "
+                f"nomor halaman sumbernya, contoh: (Halaman 15).\n"
+                f"- Jangan gunakan pengetahuan di luar konteks.\n"
+                f"- Jika tidak ada di konteks, katakan tidak ditemukan."
+            )
+        else:
+            user_prompt = question
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": question},
+            {"role": "user", "content": user_prompt},
         ]
 
         answer = llm_service.generate(messages)

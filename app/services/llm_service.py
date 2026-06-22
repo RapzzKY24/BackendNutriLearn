@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.core.logger import logger
 
 MODEL_PATHS = {
-    "qwen25": "Qwen/Qwen2.5-1B-Instruct",
+    "qwen25": "Qwen/Qwen2.5-0.5B-Instruct",
 }
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
