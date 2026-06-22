@@ -51,6 +51,9 @@ class RAGService:
         ]
 
         answer = llm_service.generate(messages)
+        if sources:
+            source_str = ", ".join(f"Halaman {s.page}" for s in sources)
+            answer += f"\n\n---\n📖 **Sumber:** {source_str}"
         return answer, sources
 
 
