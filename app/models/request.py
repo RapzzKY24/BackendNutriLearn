@@ -13,3 +13,8 @@ class BMIRequest(BaseModel):
 class EvalRequest(BaseModel):
     question: str = Field(..., min_length=1, description="Pertanyaan untuk evaluasi")
     model: str = Field(..., description="Nama model untuk evaluasi")
+
+
+class EvalRAGRequest(BaseModel):
+    question: str = Field(..., min_length=1, description="Pertanyaan untuk evaluasi RAG")
+    answer: str = Field("", description="Jawaban untuk dievaluasi. Kosongkan untuk auto-generate")

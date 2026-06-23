@@ -4,7 +4,7 @@ from typing import Literal
 
 class Settings(BaseSettings):
     hf_token: str = ""
-    model_name: Literal["qwen25"] = "qwen25"
+    model_name: Literal["qwen3"] = "qwen3"
     chroma_path: str = "./chroma_db"
     pdf_path: str = "./documents/Permenkes Nomor 41 Tahun 2014.pdf"
     top_k: int = 5

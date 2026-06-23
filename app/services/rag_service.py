@@ -14,8 +14,9 @@ class RAGService:
             for doc, meta in results:
                 page = meta.get("page")
                 if page:
-                    seen_pages.add(page)
-                    context_parts.append(f"[Halaman {page}]\n{doc}")
+                    if page not in seen_pages:
+                        seen_pages.add(page)
+                        context_parts.append(f"[Halaman {page}]\n{doc}")
                 else:
                     context_parts.append(doc)
 

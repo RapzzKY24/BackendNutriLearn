@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.core.logger import logger
 
 MODEL_PATHS = {
-    "qwen25": "Qwen/Qwen2.5-0.5B-Instruct",
+    "qwen3": "Qwen/Qwen3-1.7B",
 }
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -54,6 +54,7 @@ class LLMService:
             messages,
             tokenize=False,
             add_generation_prompt=True,
+            enable_thinking=False,
         )
 
         inputs = self.tokenizer([text], return_tensors="pt", padding=True).to(DEVICE)
@@ -69,7 +70,12 @@ class LLMService:
 
         output = generated_ids[0][inputs.input_ids.shape[1]:]
         response = self.tokenizer.decode(output, skip_special_tokens=True)
+        response = self._strip_thinking(response)
         return response.strip()
+
+    def _strip_thinking(self, text: str) -> str:
+        import re
+        return re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
 
     def generate_with_latency(self, messages: list[dict]) -> tuple[str, float]:
         t0 = time.time()
