@@ -1,10 +1,8 @@
 from pydantic_settings import BaseSettings
-from typing import Literal
 
 
 class Settings(BaseSettings):
-    hf_token: str = ""
-    model_name: Literal["qwen3"] = "qwen3"
+    gguf_model_path: str = "./models/qwen3-1.7b-q4_k_m.gguf"
     chroma_path: str = "./chroma_db"
     pdf_path: str = "./documents/Permenkes Nomor 41 Tahun 2014.pdf"
     top_k: int = 5
