@@ -4,6 +4,8 @@ from sentence_transformers import SentenceTransformer
 from app.core.logger import logger
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+EMBED_DIM = 384
 
 
 class EmbeddingService:
@@ -14,10 +16,10 @@ class EmbeddingService:
     def _ensure_loaded(self):
         if self._ready:
             return
-        logger.info(f"Loading embedding model: all-MiniLM-L6-v2 on {DEVICE.upper()}...")
+        logger.info(f"Loading embedding model: {MODEL_NAME} on {DEVICE.upper()}...")
         t0 = time.time()
         self.model = SentenceTransformer(
-            "sentence-transformers/all-MiniLM-L6-v2",
+            MODEL_NAME,
             device=DEVICE,
         )
         elapsed = time.time() - t0
@@ -30,7 +32,7 @@ class EmbeddingService:
 
     @property
     def dimension(self) -> int:
-        return 384
+        return EMBED_DIM
 
 
 embedding_service = EmbeddingService()

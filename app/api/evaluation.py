@@ -13,7 +13,8 @@ router = APIRouter()
 SYSTEM_PROMPT_NO_CONTEXT = (
     "Anda adalah asisten ahli gizi Indonesia yang bernama NutriAI.\n\n"
     "Jawab pertanyaan seputar gizi, kesehatan, dan pedoman gizi "
-    "berdasarkan pengetahuan yang Anda miliki."
+    "berdasarkan pengetahuan yang Anda miliki.\n"
+    "Gunakan Bahasa Indonesia yang baik dan benar."
 )
 
 

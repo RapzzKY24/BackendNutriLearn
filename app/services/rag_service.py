@@ -10,7 +10,8 @@ class RAGService:
 
         system_prompt = (
             "Anda adalah NutriAI, asisten ahli gizi Indonesia yang menjawab "
-            "berdasarkan dokumen Permenkes tentang pedoman gizi seimbang."
+            "berdasarkan dokumen Permenkes tentang pedoman gizi seimbang. "
+            "Gunakan Bahasa Indonesia yang baik dan benar."
         )
 
         if context:
@@ -19,6 +20,9 @@ class RAGService:
                 f"Pertanyaan: {question}\n\n"
                 f"INSTRUKSI PENTING:\n"
                 f"- Jawab berdasarkan konteks di atas.\n"
+                f"- Jawab SELALU dalam Bahasa Indonesia.\n"
+                f"- Jika ada istilah asing (Inggris) di konteks, terjemahkan ke Bahasa Indonesia.\n"
+                f"- Gunakan istilah Indonesia: 'susu' bukan 'dairy', 'daging' bukan 'meat', 'telur' bukan 'egg', 'ikan' bukan 'fish'.\n"
                 f"- SETIAP informasi yang kamu sebutkan, HARUS cantumkan "
                 f"nomor halaman sumbernya, contoh: (Halaman 15).\n"
                 f"- Jangan gunakan pengetahuan di luar konteks.\n"
