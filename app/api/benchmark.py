@@ -13,7 +13,10 @@ from app.services.rag_service import rag_service
 
 router = APIRouter(tags=["Benchmark"])
 
-MODELS_CONFIG_PATH = "./models/models_config.json"
+MODELS_CONFIG_PATH = os.getenv(
+    "MODELS_CONFIG_PATH",
+    "./models/models_config.json",
+)
 
 
 def _load_models_config() -> list[dict]:
