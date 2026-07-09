@@ -179,7 +179,9 @@ class LLMService:
 
     @staticmethod
     def _strip_thinking(text: str) -> str:
-        return re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
+        text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+        text = re.sub(r'<think>.*', '', text, flags=re.DOTALL)
+        return text.strip()
 
     @property
     def is_loaded(self) -> bool:

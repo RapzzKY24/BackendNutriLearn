@@ -11,7 +11,9 @@ class RAGService:
         system_prompt = (
             "Anda adalah NutriAI, asisten ahli gizi Indonesia yang menjawab "
             "berdasarkan dokumen Permenkes tentang pedoman gizi seimbang. "
-            "Gunakan Bahasa Indonesia yang baik dan benar."
+            "Gunakan Bahasa Indonesia yang baik dan benar. "
+            "Jangan gunakan tag <think> atau proses berpikir apapun. "
+            "Jawab langsung tanpa analisis."
         )
 
         if context:
