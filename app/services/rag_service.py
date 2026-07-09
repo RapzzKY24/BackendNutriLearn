@@ -29,6 +29,7 @@ class RAGService:
                 f"INSTRUKSI PENTING:\n"
                 f"- Jawab berdasarkan konteks di atas.\n"
                 f"- Jawab SELALU dalam Bahasa Indonesia.\n"
+                f"- JANGAN sebutkan item yang sama lebih dari sekali.\n"
                 f"- Jika ada istilah asing (Inggris) di konteks, terjemahkan ke Bahasa Indonesia.\n"
                 f"- Gunakan istilah Indonesia: 'susu' bukan 'dairy', 'daging' bukan 'meat', 'telur' bukan 'egg', 'ikan' bukan 'fish'.\n"
                 f"- SETIAP informasi yang kamu sebutkan, HARUS cantumkan "
@@ -45,10 +46,29 @@ class RAGService:
         ]
 
         answer = await llm_service.generate(messages)
+        answer = self._deduplicate_lines(answer)
         if sources:
             source_str = ", ".join(f"Halaman {s.page}" for s in sources)
             answer += f"\n\n---\n📖 **Sumber:** {source_str}"
         return answer, sources
+
+    @staticmethod
+    def _deduplicate_lines(text: str) -> str:
+        import re
+        lines = text.split("\n")
+        seen = set()
+        result = []
+        for line in lines:
+            stripped = line.strip()
+            if not stripped:
+                result.append(line)
+                continue
+            key = re.sub(r'\s*\(.*?\)\s*', '', stripped).strip().lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            result.append(line)
+        return "\n".join(result)
 
     async def _retrieve_context(self, question: str) -> tuple[str, list[Source]]:
         if retriever_service.is_ready:

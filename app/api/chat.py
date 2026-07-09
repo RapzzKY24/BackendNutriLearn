@@ -66,6 +66,7 @@ async def chat_stream(req: ChatRequest):
                     f"INSTRUKSI PENTING:\n"
                     f"- Jawab berdasarkan konteks di atas.\n"
                     f"- Jawab SELALU dalam Bahasa Indonesia.\n"
+                    f"- JANGAN sebutkan item yang sama lebih dari sekali.\n"
                     f"- Jika ada istilah asing (Inggris) di konteks, terjemahkan ke Bahasa Indonesia.\n"
                     f"- Gunakan istilah Indonesia: 'susu' bukan 'dairy', 'daging' bukan 'meat', 'telur' bukan 'egg', 'ikan' bukan 'fish'.\n"
                     f"- SETIAP informasi yang kamu sebutkan, HARUS cantumkan "
