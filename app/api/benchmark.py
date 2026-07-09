@@ -4,6 +4,7 @@ import time
 
 from fastapi import APIRouter, HTTPException
 
+from app.core.config import settings
 from app.core.input_guard import guard_question
 from app.core.logger import logger
 from app.models.request import BenchmarkRequest
@@ -14,10 +15,7 @@ from app.services.rag_service import rag_service
 
 router = APIRouter(tags=["Benchmark"])
 
-MODELS_CONFIG_PATH = os.getenv(
-    "MODELS_CONFIG_PATH",
-    "./models/models_config.json",
-)
+MODELS_CONFIG_PATH = settings.models_config_path
 
 
 def _load_models_config() -> list[dict]:

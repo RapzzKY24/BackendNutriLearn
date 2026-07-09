@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     api_key: str = ""
     cors_origins: str = "http://localhost:3000,http://localhost:5173"
     rate_limit: str = "10/minute"
+    models_config_path: str = "./models/models_config.json"
 
     model_config = SettingsConfigDict(
         env_file=".env",
