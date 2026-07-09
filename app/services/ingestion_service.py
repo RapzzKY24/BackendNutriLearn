@@ -32,9 +32,14 @@ def _chunk_page(text: str, page_num: int) -> list[tuple[str, int]]:
 
 def run_ingestion():
     t0 = time.time()
-    logger.info(f"Loading PDF: {settings.pdf_path}")
+    pdf_files = [f for f in os.listdir(settings.pdf_dir) if f.lower().endswith(".pdf")]
+    if not pdf_files:
+        logger.error(f"No PDF files found in {settings.pdf_dir}")
+        return
+    pdf_path = os.path.join(settings.pdf_dir, pdf_files[0])
+    logger.info(f"Loading PDF: {pdf_path}")
 
-    reader = PdfReader(settings.pdf_path)
+    reader = PdfReader(pdf_path)
     total_pages = len(reader.pages)
     logger.info(f"PDF loaded: {total_pages} pages")
 
