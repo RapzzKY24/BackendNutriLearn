@@ -5,6 +5,7 @@ from app.services.llm_service import llm_service
 from app.services.rag_service import rag_service
 from app.services.retriever_service import retriever_service
 from app.services.eval_rag_service import eval_rag_service
+from app.core.input_guard import guard_question
 from app.core.logger import logger
 
 router = APIRouter()
@@ -19,12 +20,16 @@ SYSTEM_PROMPT_NO_CONTEXT = (
 @router.post("/evaluate", response_model=EvalResponse)
 async def evaluate_endpoint(req: EvalRequest):
     try:
+        guard_question(req.question)
+
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT_NO_CONTEXT},
             {"role": "user", "content": req.question},
         ]
-        answer, latency = llm_service.generate_with_latency(messages)
+        answer, latency = await llm_service.generate_with_latency(messages)
         return EvalResponse(answer=answer, latency=latency)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Evaluate error: {e}")
         raise HTTPException(status_code=500, detail="Unable to process request")
@@ -33,6 +38,8 @@ async def evaluate_endpoint(req: EvalRequest):
 @router.post("/evaluate/rag", response_model=EvalRAGResponse)
 async def evaluate_rag_endpoint(req: EvalRAGRequest):
     try:
+        guard_question(req.question)
+
         if not retriever_service.is_ready:
             raise HTTPException(status_code=400, detail="ChromaDB belum di-populate. Jalankan ingest.py dulu.")
 
@@ -44,7 +51,7 @@ async def evaluate_rag_endpoint(req: EvalRAGRequest):
 
         answer = req.answer.strip() if req.answer.strip() else None
         if not answer:
-            answer, _ = rag_service.ask(req.question)
+            answer, _ = await rag_service.ask(req.question)
             answer = answer.split("\n\n---\n📖")[0]
 
         metrics = eval_rag_service.evaluate(
@@ -62,6 +69,8 @@ async def evaluate_rag_endpoint(req: EvalRAGRequest):
         )
     except HTTPException:
         raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Evaluate RAG error: {e}")
         raise HTTPException(status_code=500, detail="Unable to process request")

@@ -5,27 +5,8 @@ from app.models.response import Source
 
 
 class RAGService:
-    def ask(self, question: str) -> tuple[str, list[Source]]:
-        if retriever_service.is_ready:
-            logger.info("RAG: retrieving context from ChromaDB...")
-            results = retriever_service.retrieve(question)
-            context_parts = []
-            seen_pages = set()
-            for doc, meta in results:
-                page = meta.get("page")
-                if page:
-                    if page not in seen_pages:
-                        seen_pages.add(page)
-                        context_parts.append(f"[Halaman {page}]\n{doc}")
-                else:
-                    context_parts.append(doc)
-
-            context = "\n\n---\n\n".join(context_parts) if context_parts else ""
-            sources = [Source(page=p) for p in sorted(seen_pages)]
-            logger.info(f"RAG: retrieved {len(context_parts)} chunks from pages {sorted(seen_pages)}")
-        else:
-            context = ""
-            sources = []
+    async def ask(self, question: str) -> tuple[str, list[Source]]:
+        context, sources = await self._retrieve_context(question)
 
         system_prompt = (
             "Anda adalah NutriAI, asisten ahli gizi Indonesia yang menjawab "
@@ -51,11 +32,33 @@ class RAGService:
             {"role": "user", "content": user_prompt},
         ]
 
-        answer = llm_service.generate(messages)
+        answer = await llm_service.generate(messages)
         if sources:
             source_str = ", ".join(f"Halaman {s.page}" for s in sources)
             answer += f"\n\n---\n📖 **Sumber:** {source_str}"
         return answer, sources
+
+    async def _retrieve_context(self, question: str) -> tuple[str, list[Source]]:
+        if retriever_service.is_ready:
+            logger.info("RAG: retrieving context from ChromaDB...")
+            results = retriever_service.retrieve(question)
+            context_parts = []
+            seen_pages = set()
+            for doc, meta in results:
+                page = meta.get("page")
+                if page:
+                    if page not in seen_pages:
+                        seen_pages.add(page)
+                        context_parts.append(f"[Halaman {page}]\n{doc}")
+                else:
+                    context_parts.append(doc)
+
+            context = "\n\n---\n\n".join(context_parts) if context_parts else ""
+            sources = [Source(page=p) for p in sorted(seen_pages)]
+            logger.info(f"RAG: retrieved {len(context_parts)} chunks from pages {sorted(seen_pages)}")
+            return context, sources
+
+        return "", []
 
 
 rag_service = RAGService()
