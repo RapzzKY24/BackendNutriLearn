@@ -4,6 +4,6 @@ __pycache__/
 .env
 chroma_db/
 .opencode/
-models/
+/models/
 .venv/
 opencode.json
