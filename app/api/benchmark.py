@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.core.input_guard import guard_question
 from app.core.logger import logger
+from app.models.request import BenchmarkRequest
 from app.models.response import ErrorResponse
 from app.services.eval_rag_service import eval_rag_service
 from app.services.llm_service import llm_service
@@ -87,9 +88,9 @@ async def _run_single_model(model_cfg: dict, question: str) -> dict:
 
 
 @router.post("/ask")
-async def ask_models(query: str):
+async def ask_models(req: BenchmarkRequest):
     try:
-        query = guard_question(query)
+        query = guard_question(req.query)
     except ValueError as e:
         return ErrorResponse(message=str(e))
 
@@ -130,9 +131,9 @@ async def ask_models(query: str):
 
 
 @router.post("/benchmark")
-async def benchmark(query: str):
+async def benchmark(req: BenchmarkRequest):
     try:
-        query = guard_question(query)
+        query = guard_question(req.query)
     except ValueError as e:
         return ErrorResponse(message=str(e))
 

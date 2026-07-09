@@ -18,3 +18,7 @@ class EvalRequest(BaseModel):
 class EvalRAGRequest(BaseModel):
     question: str = Field(..., min_length=1, description="Pertanyaan untuk evaluasi RAG")
     answer: str = Field("", description="Jawaban untuk dievaluasi. Kosongkan untuk auto-generate")
+
+
+class BenchmarkRequest(BaseModel):
+    query: str = Field(..., min_length=1, description="Pertanyaan untuk dibenchmark")
