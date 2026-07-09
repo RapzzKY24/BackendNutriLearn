@@ -10,10 +10,16 @@ class RAGService:
 
         system_prompt = (
             "Anda adalah NutriAI, asisten ahli gizi Indonesia yang menjawab "
-            "berdasarkan dokumen Permenkes tentang pedoman gizi seimbang. "
-            "Gunakan Bahasa Indonesia yang baik dan benar. "
-            "Jangan gunakan tag <think> atau proses berpikir apapun. "
-            "Jawab langsung tanpa analisis."
+            "berdasarkan dokumen Permenkes tentang pedoman gizi seimbang.\n\n"
+            "PENTING: Anda HARUS menjawab dalam Bahasa Indonesia. "
+            "DILARANG menggunakan bahasa Inggris.\n\n"
+            "Contoh:\n"
+            "Pertanyaan: apa itu gizi seimbang?\n"
+            "Jawaban: Gizi seimbang adalah susunan makanan sehari-hari yang "
+            "mengandung zat gizi dalam jenis dan jumlah yang sesuai dengan "
+            "kebutuhan tubuh.\n\n"
+            "Jangan gunakan tag <think> atau proses berpikir apapun.\n"
+            "Jawab langsung."
         )
 
         if context:
@@ -31,7 +37,7 @@ class RAGService:
                 f"- Jika tidak ada di konteks, katakan tidak ditemukan."
             )
         else:
-            user_prompt = question
+            user_prompt = f"Jawab dalam Bahasa Indonesia.\nPertanyaan: {question}"
 
         messages = [
             {"role": "system", "content": system_prompt},
