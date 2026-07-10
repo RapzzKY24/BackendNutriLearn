@@ -9,6 +9,6 @@ router = APIRouter()
 async def health_check():
     return {
         "status": "ok",
-        "model": settings.model_name,
+        "model": llm_service.current_model_name,
         "model_loaded": llm_service.is_loaded,
     }
