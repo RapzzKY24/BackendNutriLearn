@@ -1,0 +1,12 @@
+.venv
+.venv/
+__pycache__/
+*.pyc
+*.gguf
+chroma_db/
+.opencode/
+opencode.json
+.git
+.gitignore
+.env
+*.md
