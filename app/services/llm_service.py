@@ -54,6 +54,7 @@ class LLMService:
                 model_path=p,
                 n_ctx=settings.n_ctx,
                 batch_size=settings.batch_size,
+                flash_attn=True,
                 n_gpu_layers=settings.n_gpu_layers,
                 n_threads=settings.n_threads,
                 verbose=False,
