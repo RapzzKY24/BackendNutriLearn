@@ -52,7 +52,8 @@ class LLMService:
         def _load(p: str):
             return Llama(
                 model_path=p,
-                n_ctx=8192,
+                n_ctx=settings.n_ctx,
+                batch_size=settings.batch_size,
                 n_gpu_layers=settings.n_gpu_layers,
                 n_threads=settings.n_threads,
                 verbose=False,
@@ -86,13 +87,16 @@ class LLMService:
         if not self._loaded:
             await self.ensure_loaded()
         loop = self._loop or asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self._generate_sync, messages)
+        return await asyncio.wait_for(
+            loop.run_in_executor(None, self._generate_sync, messages),
+            timeout=settings.llm_timeout,
+        )
 
     async def generate_stream(self, messages: list[dict]):
         if not self._loaded:
             await self.ensure_loaded()
         loop = self._loop or asyncio.get_event_loop()
-        queue = asyncio.Queue()
+        queue: asyncio.Queue = asyncio.Queue()
 
         def _run():
             try:
@@ -135,7 +139,7 @@ class LLMService:
         loop.run_in_executor(None, _run)
 
         while True:
-            kind, payload = await queue.get()
+            kind, payload = await asyncio.wait_for(queue.get(), timeout=settings.llm_timeout)
             if kind == "token":
                 yield payload
             elif kind == "done":

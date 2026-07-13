@@ -21,7 +21,10 @@ class Settings(BaseSettings):
     pdf_dir: str = "./documents"
     top_k: int = 5
     temperature: float = 0.3
-    max_new_tokens: int = 512
+    max_new_tokens: int = 256
+    n_ctx: int = 2048
+    batch_size: int = 512
+    llm_timeout: int = 120
     host: str = "0.0.0.0"
     port: int = 8000
     n_threads: int = max(1, (os.cpu_count() or 4) - 1)
