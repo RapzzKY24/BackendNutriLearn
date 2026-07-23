@@ -29,12 +29,13 @@ class Settings(BaseSettings):
     port: int = 8000
     n_threads: int = max(1, (os.cpu_count() or 4) - 1)
     n_gpu_layers: int = _default_n_gpu_layers()
-    max_history_turns: int = 6
+    max_history_turns: int = 3
     cache_ttl: int = 300
     api_key: str = ""
     cors_origins: str = "http://localhost:3000,http://localhost:5173"
     rate_limit: str = "10/minute"
     models_config_path: str = "./models/models_config.json"
+    database_url: str = "postgresql://user:password@localhost:5432/chatbot_db"
 
     model_config = SettingsConfigDict(
         env_file=".env",

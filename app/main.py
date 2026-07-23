@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.logger import logger
 from app.services.llm_service import llm_service
 from app.services.embedding_service import embedding_service
+from app.services.session_store import session_store
 
 
 
@@ -28,6 +29,10 @@ async def lifespan(app: FastAPI):
     logger.info("Starting NutriAI RAG Service...")
     if not settings.api_key:
         logger.warning("API_KEY is not set! Authentication is disabled.")
+    try:
+        await session_store.init_pool()
+    except Exception as e:
+        logger.warning(f"PostgreSQL not available: {e}. History will not be saved.")
     if settings.gguf_model_path:
         try:
             await llm_service.ensure_loaded()
@@ -41,6 +46,7 @@ async def lifespan(app: FastAPI):
         logger.error(f"Failed to load embedding model at startup: {e}")
     yield
     logger.info("Shutting down NutriAI RAG Service...")
+    await session_store.close_pool()
 
 
 app = FastAPI(

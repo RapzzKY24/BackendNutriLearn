@@ -1,11 +1,12 @@
 from app.services.llm_service import llm_service
 from app.services.retriever_service import retriever_service
+from app.core.config import settings
 from app.core.logger import logger
 from app.models.response import Source
 
 
 class RAGService:
-    async def ask(self, question: str) -> tuple[str, list[Source]]:
+    async def ask(self, question: str, history: list[dict] | None = None) -> tuple[str, list[Source]]:
         context, sources = await self._retrieve_context(question)
 
         system_prompt = (
@@ -18,7 +19,7 @@ class RAGService:
             "Jawaban: Gizi seimbang adalah susunan makanan sehari-hari yang "
             "mengandung zat gizi dalam jenis dan jumlah yang sesuai dengan "
             "kebutuhan tubuh.\n\n"
-            "Jangan gunakan tag <think> atau proses berpikir apapun.\n"
+            "Jangan gunakan tag  thinking atau proses berpikir apapun.\n"
             "Jawab langsung."
         )
 
@@ -42,8 +43,10 @@ class RAGService:
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
         ]
+        if history:
+            messages.extend(history)
+        messages.append({"role": "user", "content": user_prompt})
 
         answer = await llm_service.generate(messages)
         answer = self._deduplicate_lines(answer)

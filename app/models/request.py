@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 class ChatRequest(BaseModel):
     question: str = Field(..., min_length=1, description="Pertanyaan user")
+    session_id: str | None = Field(None, description="Session ID untuk riwayat percakapan")
 
 
 class BMIRequest(BaseModel):

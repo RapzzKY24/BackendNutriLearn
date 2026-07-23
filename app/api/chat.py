@@ -1,10 +1,12 @@
 import json
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from app.models.request import ChatRequest
 from app.models.response import ChatResponse, ErrorResponse
 from app.services.llm_service import llm_service
 from app.services.rag_service import rag_service
+from app.services.session_store import session_store
+from app.core.config import settings
 from app.core.input_guard import guard_question
 from app.core.logger import logger
 
@@ -22,7 +24,16 @@ async def chat_endpoint(req: ChatRequest):
 
     try:
         guard_question(req.question)
-        answer, sources = await rag_service.ask(req.question)
+        history = []
+        if req.session_id:
+            await session_store.add_turn(req.session_id, "user", req.question)
+            history = await session_store.get_history(req.session_id, settings.max_history_turns)
+
+        answer, sources = await rag_service.ask(req.question, history)
+
+        if req.session_id:
+            await session_store.add_turn(req.session_id, "assistant", answer)
+
         return ChatResponse(answer=answer, sources=sources)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -42,8 +53,14 @@ async def chat_stream(req: ChatRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
     async def event_stream():
+        bot_answer = ""
         try:
             context, sources = await rag_service._retrieve_context(req.question)
+
+            history = []
+            if req.session_id:
+                await session_store.add_turn(req.session_id, "user", req.question)
+                history = await session_store.get_history(req.session_id, settings.max_history_turns)
 
             system_prompt = (
                 "Anda adalah NutriAI, asisten ahli gizi Indonesia yang menjawab "
@@ -55,7 +72,7 @@ async def chat_stream(req: ChatRequest):
                 "Jawaban: Gizi seimbang adalah susunan makanan sehari-hari yang "
                 "mengandung zat gizi dalam jenis dan jumlah yang sesuai dengan "
                 "kebutuhan tubuh.\n\n"
-                "Jangan gunakan tag <think> atau proses berpikir apapun.\n"
+                "Jangan gunakan tag  thinking atau proses berpikir apapun.\n"
                 "Jawab langsung."
             )
 
@@ -79,11 +96,17 @@ async def chat_stream(req: ChatRequest):
 
             messages = [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
             ]
+            if history:
+                messages.extend(history)
+            messages.append({"role": "user", "content": user_prompt})
 
             async for token in llm_service.generate_stream(messages):
+                bot_answer += token
                 yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+
+            if req.session_id and bot_answer:
+                await session_store.add_turn(req.session_id, "assistant", bot_answer)
 
             if sources:
                 source_str = ", ".join(f"Halaman {s.page}" for s in sources)
